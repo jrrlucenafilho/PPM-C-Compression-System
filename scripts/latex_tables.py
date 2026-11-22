@@ -149,7 +149,7 @@ def final_table(results_dir):
         r"\label{tab:final}",
         r"\begin{tabular}{llrrrrrrr}",
         r"\toprule",
-        r"A & modo & $K_{\max}$ & $j$ & $p$ & bits/byte & comp. (s) & desc. (s) & adv. \\",
+        r"A & modo & $K_{\max}$ & $j$ & $p$ & bits/byte & comp. (s) & desc. (s) & reset/poda \\",
         r"\midrule",
     ]
     for r in rows:
