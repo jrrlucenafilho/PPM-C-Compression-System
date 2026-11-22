@@ -1,0 +1,20 @@
+\begin{table}[H]
+\centering
+\caption{Tempos de compress\~ao e descompress\~ao das melhores configura\c{c}\~oes da calibra\c{c}\~ao, em execu\c{c}\~ao isolada (uma thread, 12 MB).}
+\label{tab:dec-times}
+\begin{tabular}{llrrrrrr}
+\toprule
+A & modo & $K_{\max}$ & $j$ & $p$ & bits/byte & comp. (s) & desc. (s) \\
+\midrule
+A1 & none & 30 & 1000 & 5 & 4,270 & 88.8 & 102.0 \\
+A1 & reset & 17 & 50000 & 30 & 3,899 & 16.5 & 16.0 \\
+A1 & prune & 17 & 50000 & 15 & 4,093 & 20.5 & 20.6 \\
+A4 & none & 7 & 1000 & 5 & 3,255 & 11.5 & 11.7 \\
+A4 & reset & 8 & 10000 & 50 & 3,018 & 12.3 & 12.5 \\
+A4 & prune & 8 & 10000 & 40 & 3,080 & 20.3 & 20.7 \\
+A8 & none & 5 & 1000 & 5 & 2,992 & 8.0 & 8.2 \\
+A8 & reset & 5 & 10000 & 50 & 2,854 & 6.5 & 6.8 \\
+A8 & prune & 5 & 5000 & 40 & 2,912 & 9.3 & 9.5 \\
+\bottomrule
+\end{tabular}
+\end{table}

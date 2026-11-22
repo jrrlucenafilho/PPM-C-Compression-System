@@ -135,6 +135,33 @@ def commercial_table(path):
     write(os.path.join(OUT, "commercial.tex"), "\n".join(lines))
 
 
+def dec_table(path):
+    rows = read(path)
+    if not rows:
+        return
+    order = {"none": 0, "reset": 1, "prune": 2}
+    rows.sort(key=lambda r: (r["bits"], order.get(r["mode"], 9)))
+    lines = [
+        r"\begin{table}[H]",
+        r"\centering",
+        r"\caption{Tempos de compress\~ao e descompress\~ao das melhores "
+        r"configura\c{c}\~oes da calibra\c{c}\~ao, em execu\c{c}\~ao isolada "
+        r"(uma thread, 12 MB).}",
+        r"\label{tab:dec-times}",
+        r"\begin{tabular}{llrrrrrr}",
+        r"\toprule",
+        r"A & modo & $K_{\max}$ & $j$ & $p$ & bits/byte & comp. (s) & desc. (s) \\",
+        r"\midrule",
+    ]
+    for r in rows:
+        lines.append(
+            f"A{r['bits']} & {r['mode']} & {r['kmax']} & {r['j']} & {r['p']} & "
+            f"{f3(r['bits_per_byte'])} & {r['enc_s']:.1f} & {r['dec_s']:.1f} \\\\"
+        )
+    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
+    write(os.path.join(OUT, "dec_times.tex"), "\n".join(lines))
+
+
 def final_table(results_dir):
     rows = []
     for bits in (1, 4, 8):
@@ -180,6 +207,7 @@ def main():
     if allrows:
         summary_table(allrows)
     commercial_table(os.path.join(args.results, "commercial.csv"))
+    dec_table(os.path.join(args.results, "31_dec_times.csv"))
     final_table(args.results)
 
 

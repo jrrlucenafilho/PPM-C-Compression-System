@@ -81,15 +81,19 @@ RESUME=1 THREADS=12 ./scripts/run31.sh   # continua uma grade interrompida
 
 # melhores configuracoes no corpus completo + curvas + comparacao com 7-Zip
 # (cada passada grava o CSV final e a curva 3.3 ao mesmo tempo)
-B1=6 J1=50000 P1=20 B4=4 J4=50000 P4=20 B8=6 J8=50000 P8=20 \
+B1=17 J1=50000 P1=30 B4=8 J4=10000 P4=50 B8=5 J8=10000 P8=50 \
   ./scripts/run_final.sh
+
+# tempos de compressao/descompressao das 9 melhores configuracoes da calibracao
+./scripts/run_dec_times.sh
 
 # figuras e tabela resumo
 python3 scripts/plots.py
 ```
 
 Saidas em `results/`: `31_A{1,4,8}.csv` (grade), `summary_31.csv`,
-`final_A*_*.csv`, `commercial.csv`, `trace_*.csv` e `figs/*.png`.
+`31_dec_times.csv`, `final_A*_*.csv`, `commercial.csv`, `trace_*.csv` e
+`figs/*.png`.
 
 ### Por que calibrar em `calib.bin`
 

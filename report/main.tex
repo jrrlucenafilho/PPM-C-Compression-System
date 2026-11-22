@@ -223,6 +223,7 @@ reportado em cada linha \'e sempre o da execu\c{c}\~ao individual.
 \maybeinput{tables/31_A8_kmax.tex}
 \maybeinput{tables/31_summary.tex}
 \maybeinput{tables/final.tex}
+\maybeinput{tables/dec_times.tex}
 
 \begin{figure}[H]
   \centering
@@ -255,8 +256,11 @@ em $K_{\max}=17$ (3,899 e 4,093 bits/byte, respectivamente) e pioram para ordens
 maiores. Isso ocorre porque, acima desse ponto, os contextos tornam-se quase
 \'unicos e o modelo passa a memorizar o passado em vez de generalizar; al\'em disso,
 cada n\'ivel adicional custa tempo e mem\'oria. O tempo m\'edio por combina\c{c}\~ao
-no A1 cresce de cerca de 6,5 s em $K_{\max}=0$ para 86 s em $K_{\max}=17$ e 790 s
-em $K_{\max}=32$.
+na grade paralela do A1 cresce de cerca de 6,5 s em $K_{\max}=0$ para 86 s em
+$K_{\max}=17$ e 790 s em $K_{\max}=32$; esses valores incluem a conten\c{c}\~ao entre
+as execu\c{c}\~oes simult\^aneas e servem para comparar ordens, n\~ao como tempo
+absoluto. A Tabela~\ref{tab:dec-times} repete as melhores configura\c{c}\~oes
+isoladamente.
 
 No A4, o melhor resultado sem adapta\c{c}\~ao aparece em $K_{\max}=7$ (3,255
 bits/byte), enquanto reset e poda preferem $K_{\max}=8$ (3,018 e 3,080 bits/byte).
@@ -273,9 +277,18 @@ nos tr\^es casos: 3,3546 bits/byte no A1, 2,3628 no A4 e 2,1623 no A8, contra
 10,9\% e 11,9\%. A poda tamb\'em melhora os tr\^es alfabetos, mas fica atr\'as do
 reset (3,4382, 2,5250 e 2,2403 bits/byte). A Tabela~\ref{tab:final} traz os tempos
 de compress\~ao e descompress\~ao medidos nessa valida\c{c}\~ao. A grade registra o
-tempo de compress\~ao de cada combina\c{c}\~ao; os tempos de descompress\~ao foram
-medidos nas nove configura\c{c}\~oes finais, pois decodificar todas as 4.947
-combina\c{c}\~oes dobraria o custo da grade.
+tempo de compress\~ao de cada combina\c{c}\~ao; a Tabela~\ref{tab:dec-times} repete
+as nove melhores configura\c{c}\~oes em execu\c{c}\~ao isolada, com descompress\~ao, e
+a Tabela~\ref{tab:final} faz o mesmo no corpus completo. Medir a descompress\~ao de
+todas as 4.947 combina\c{c}\~oes dobraria o custo da grade.
+
+A Tabela~\ref{tab:dec-times} mostra que compress\~ao e descompress\~ao t\^em custos
+pr\'oximos, com raz\~ao desc/comp entre 0,97 e 1,15. O caso mais caro \'e o A1 sem
+adapta\c{c}\~ao em $K_{\max}=30$ (88,8 s e 102,0 s), enquanto o reset em
+$K_{\max}=17$ cai para 16,5 s e 16,0 s; o A8 \'e o mais r\'apido (6,5--9,5 s). Isso
+confirma que a ordem alta no A1 \'e cara tanto para comprimir quanto para
+descomprimir, e que o modo adaptativo escolhido n\~ao introduz custo
+desproporcional.
 
 Cabe registrar uma escolha metodol\'ogica: para comparar os modos sem confundir o
 efeito da ordem, a valida\c{c}\~ao final usa o mesmo $K_{\max}$ nos tr\^es modos de
@@ -489,10 +502,11 @@ configura\c{c}\~oes independentes) e usa tabelas hash com
 \texttt{std::unordered\_map} e vetores ordenados, o que tamb\'em limita a velocidade
 em ordens altas.
 
-Entre as limita\c{c}\~oes, destacam-se: a calibra\c{c}\~ao em 12 MB, a aus\^encia de
-tempos de descompress\~ao para todas as linhas da grade (medidos apenas nas
-execu\c{c}\~oes finais verificadas), o limite fixo de contextos e a aus\^encia de um
-mecanismo espec\'ifico para detectar fronteiras de arquivo. Ainda assim, os
+Entre as limita\c{c}\~oes, destacam-se: a calibra\c{c}\~ao em 12 MB, os tempos de
+descompress\~ao medidos para as melhores configura\c{c}\~oes (calibra\c{c}\~ao e corpus
+completo), mas n\~ao para todas as linhas da grade, o limite fixo de contextos e a
+aus\^encia de um mecanismo espec\'ifico para detectar fronteiras de arquivo. Ainda
+assim, os
 objetivos de implementar PPM-C com exclus\~ao, comparar os tr\^es regimes e analisar
 a aprendizagem e a n\~ao estacionariedade foram cumpridos.
 
