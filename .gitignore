@@ -1,1 +1,10 @@
 ITI2026.2.pdf
+build/
+data/
+results/
+*.ppm
+*.o
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc

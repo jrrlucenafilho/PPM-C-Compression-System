@@ -1,0 +1,17 @@
+\begin{table}[H]
+\centering
+\caption{Comparação com compressores de referência (7-Zip, uma thread).}
+\label{tab:comercial}
+\begin{tabular}{llrr}
+\toprule
+Arquivo & Método & bytes & bits/byte \\
+\midrule
+\texttt{all.bin} & \texttt{PPMd:o=6:mem=256m} & 49886527 & 1,883 \\
+\texttt{all.bin} & \texttt{PPMd:o=16:mem=256m} & 48036908 & 1,813 \\
+\texttt{all.bin} & \texttt{LZMA2} & 48685735 & 1,838 \\
+\texttt{dickens} & \texttt{PPMd:o=6:mem=256m} & 2296792 & 1,803 \\
+\texttt{dickens} & \texttt{PPMd:o=16:mem=256m} & 2279663 & 1,789 \\
+\texttt{dickens} & \texttt{LZMA2} & 2831111 & 2,222 \\
+\bottomrule
+\end{tabular}
+\end{table}
