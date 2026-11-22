@@ -107,7 +107,7 @@ bool compressBuffer(const std::vector<uint8_t>& in, const Params& P,
   std::ofstream trace;
   if (!tracePath.empty()) {
     trace.open(tracePath);
-    trace << "n,bits,avg\n";
+    trace << "n,bits,avg,ideal_bits,ideal_avg\n";
   }
 
   double t0 = now_s();
@@ -119,12 +119,20 @@ bool compressBuffer(const std::vector<uint8_t>& in, const Params& P,
     model.account(c);
     totalCost += c;
     if (trace.is_open() && traceInterval != 0 && (i + 1) % traceInterval == 0) {
-      double bits = static_cast<double>(totalCost) / 65536.0;
-      trace << (i + 1) << ',' << bits << ',' << bits / static_cast<double>(i + 1) << '\n';
+      double emitted = static_cast<double>(bw.bitCount());
+      double ideal = static_cast<double>(totalCost) / 65536.0;
+      trace << (i + 1) << ',' << emitted << ',' << emitted / static_cast<double>(i + 1)
+            << ',' << ideal << ',' << ideal / static_cast<double>(i + 1) << '\n';
     }
   }
   coder.finish();
   bw.flush();
+  if (trace.is_open() && nsym > 0) {
+    double emitted = static_cast<double>(bw.bitCount());
+    double ideal = static_cast<double>(totalCost) / 65536.0;
+    trace << nsym << ',' << emitted << ',' << emitted / static_cast<double>(nsym)
+          << ',' << ideal << ',' << ideal / static_cast<double>(nsym) << '\n';
+  }
   double t1 = now_s();
   if (trace.is_open()) trace.close();
 

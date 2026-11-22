@@ -69,8 +69,9 @@ o A1 teve melhor resultado com reset em $K_{\max}=17$, o A4 com $K_{\max}=8$ e o
 com $K_{\max}=5$. No corpus completo de 211,9 MB, o reset foi o melhor modo:
 3,3546 bits/byte no A1, 2,3628 no A4 e 2,1623 no A8, ganhos de 14,6\%, 10,9\% e
 11,9\% sobre o modo sem adapta\c{c}\~ao. As curvas progressivas mostram
-estabiliza\c{c}\~ao r\'apida no Dickens e quedas claras nas 11 transi\c{c}\~oes do
-Silesia, com recupera\c{c}\~ao bem mais curta quando reset ou poda est\~ao ativos.
+estabiliza\c{c}\~ao em poucos megabytes no Dickens e quedas claras nas 11
+transi\c{c}\~oes do Silesia, com recupera\c{c}\~ao bem mais curta quando reset ou
+poda est\~ao ativos.
 O melhor resultado ainda fica cerca de 19\% acima do PPMd de ordem 16 do 7-Zip,
 o que reflete a maior complexidade do modelo comercial.
 \end{abstract}
@@ -256,7 +257,9 @@ individual, incluindo a conten\c{c}\~ao com as demais.
 Nas Tabelas~\ref{tab:kmax-A1}--\ref{tab:kmax-A8} o comprimento \'e apresentado em
 bits/byte; a convers\~ao para bits/s\'imbolo \'e imediata (A1: $\times 8$, A4:
 $\times 2$, A8: $\times 1$), e a Tabela~\ref{tab:resumo-31} j\'a traz as duas
-m\'etricas.
+m\'etricas. A grade completa (4.947 linhas) est\'a em
+\texttt{results/31\_A*.csv}; as Tabelas~\ref{tab:kmax-A1}--\ref{tab:kmax-A8}
+resumem, para cada $K_{\max}$, o melhor $(j,p)$ de cada modo.
 
 No alfabeto A1, o modo sem adapta\c{c}\~ao continua melhorando lentamente com a
 ordem e atinge o melhor valor da grade em $K_{\max}=30$ (4,270 bits/byte). Os modos
@@ -308,6 +311,18 @@ reset \'e superior. A poda, por varrer todas as tabelas a cada disparo, foi o mo
 mais lento no corpus completo, sobretudo no A4 (1.243 s de compress\~ao contra
 458 s do reset).
 
+Para completar a lacuna de tempos por $K_{\max}$, as
+Tabelas~\ref{tab:times-A1}--\ref{tab:times-A8} repetem, para cada $K_{\max}$ e
+modo, a melhor $(j,p)$ da grade em execu\c{c}\~ao isolada, registrando compress\~ao e
+descompress\~ao. Elas mostram o crescimento do custo com a ordem e confirmam que,
+no A1, o reset em $K_{\max}=17$ \'e muito mais barato que as ordens altas do modo
+sem adapta\c{c}\~ao. Pequenas diferen\c{c}as em rela\c{c}\~ao \`a Tabela~\ref{tab:dec-times}
+s\~ao ru\'ido de medi\c{c}\~ao entre execu\c{c}\~oes independentes.
+
+\maybeinput{tables/times_A1_kmax.tex}
+\maybeinput{tables/times_A4_kmax.tex}
+\maybeinput{tables/times_A8_kmax.tex}
+
 \subsection{Aprendizado no Collected Works of Charles Dickens (3.2)}
 \begin{figure}[H]
   \centering
@@ -324,7 +339,7 @@ mais lento no corpus completo, sobretudo no A4 (1.243 s de compress\~ao contra
     \caption{A8}
   \end{subfigure}
   \caption{Comprimento m\'edio progressivo no arquivo \texttt{dickens}, em
-  bits/s\'imbolo (custo estimado pelo monitor). Para comparar com bits/byte,
+  bits/s\'imbolo (bits efetivamente emitidos). Para comparar com bits/byte,
   multiplicar A1 por 8 e A4 por 2 (A8 j\'a est\'a em bits/byte).}
   \label{fig:dickens}
 \end{figure}
@@ -332,21 +347,19 @@ mais lento no corpus completo, sobretudo no A4 (1.243 s de compress\~ao contra
 As tr\^es curvas come\c{c}am com comprimento m\'edio alto e caem rapidamente nos
 primeiros megabytes de dados, \`a medida que o modelo aprende os padr\~oes
 locais. Adotando uma toler\^ancia de 5\% em torno do valor final, as curvas entram
-na faixa com cerca de 0,23 MB (A8), 0,28 MB (A1) e 0,35 MB (A4), ou seja, entre 2\%
-e 3,5\% do arquivo. Com toler\^ancia de 1\%, a estabiliza\c{c}\~ao ocorre por volta
-de 0,95 MB no A1, 1,14 MB no A8 e 3,58 MB no A4. O A4 \'e o que apresenta a cauda
-mais longa: a maior parte do ganho vem cedo, mas pequenas flutua\c{c}\~oes mant\^em a
-m\'edia ligeiramente acima da faixa de 1\% por mais tempo.
+na faixa com cerca de 0,35 MB (A1), 2,77 MB (A4) e 2,99 MB (A8), ou seja, 3,4\%,
+27,2\% e 29,3\% do arquivo. Com toler\^ancia de 1\%, a estabiliza\c{c}\~ao ocorre
+por volta de 2,46 MB no A1, 7,11 MB no A4 e 7,51 MB no A8. O A1 converge muito mais
+r\'apido; A4 e A8 precisam de v\'arios megabytes porque o alfabeto maior tem mais
+s\'imbolos e mais escapes at\'e o modelo cobrir os padr\~oes relevantes.
 
-Em bits/byte, os valores estimados finais s\~ao 3,016 (A1), 1,989 (A4) e 1,779 (A8).
+Em bits/byte, os valores finais s\~ao 3,0213 (A1), 2,0505 (A4) e 1,9075 (A8).
 O A1 precisa de mais bits por byte porque cada s\'imbolo \'e um bit e o modelo
 paga o custo de codificar uma decis\~ao bin\'aria; o A8 aproveita diretamente os
-padr\~oes de byte. As curvas mostram o custo estimado pelo monitor, que n\~ao inclui
-o custo dos escapes nem o arredondamento do codificador aritm\'etico. Por isso o
-payload real \'e maior: no Dickens, no modo sem adapta\c{c}\~ao, a diferen\c{c}a \'e de
-cerca de 0,2\% no A1, 3\% no A4 e 7\% no A8, o que \'e coerente com a maior
-frequ\^encia de escapes nos alfabetos maiores. As decis\~oes de reset/poda usam esse custo estimado, n\~ao o
-n\'umero de bits efetivamente emitidos, o que \'e essencial para a sincronia.
+padr\~oes de byte. As curvas mostram os bits efetivamente emitidos pelo
+codificador aritm\'etico. O monitor de reset/poda usa uma estimativa separada,
+$-\log_2(\mathrm{freq}/\mathrm{total})$, que n\~ao inclui o custo dos escapes; isso
+afeta as decis\~oes de adapta\c{c}\~ao, mas n\~ao o eixo das curvas.
 
 \subsection{Aprendizado e estacionariedade no Silesia (3.3)}
 \begin{figure}[H]
@@ -407,25 +420,25 @@ n\'umero de bits efetivamente emitidos, o que \'e essencial para a sincronia.
 \end{figure}
 
 As curvas mostram quedas claras de desempenho nas transi\c{c}\~oes entre os doze
-arquivos; como em 3.2, usa-se o custo estimado pelo monitor. Medindo o custo local
+arquivos; como em 3.2, usam-se os bits efetivamente emitidos. Medindo o custo local
 em janelas equivalentes a 2 MB antes e depois de
 cada transi\c{c}\~ao, o custo posterior \'e, em m\'edia, 1,65 vezes o
-anterior no A1 sem adapta\c{c}\~ao; com reset e poda essa raz\~ao cai para 1,37 e
-1,40. No A4, a raz\~ao cai de 1,62 para 1,47 (reset) e 1,45 (poda). No A8 a
-diferen\c{c}a entre os modos \'e menor (1,69 contra 1,66 e 1,65), mas o ganho
+anterior no A1 sem adapta\c{c}\~ao; com reset e poda essa raz\~ao cai para 1,38 e
+1,40. No A4, a raz\~ao cai de 1,77 para 1,63 (reset) e 1,60 (poda). No A8 a
+diferen\c{c}a entre os modos \'e menor (1,79 contra 1,75 e 1,77), mas o ganho
 acumulado no arquivo inteiro ainda \'e de 11,9\% com reset, porque os efeitos se
 somam ao longo das doze partes.
 
 O tempo de recupera\c{c}\~ao confirma o benef\'icio. Tomando como refer\^encia o
 custo local 10\% acima do n\'ivel anterior \`a transi\c{c}\~ao, a mediana de
-recupera\c{c}\~ao no A1 cai de 1,40 milh\~ao de s\'imbolos sem adapta\c{c}\~ao para
-0,11 milh\~ao com reset e 0,32 milh\~ao com poda. No A4, cai de 0,27 milh\~ao para
-0,08 e 0,10 milh\~ao. No A8 a mediana j\'a \'e pequena nos tr\^es casos
-(cerca de 0,09 milh\~ao), mas a m\'edia melhora de 4,96 milh\~oes para 3,56 milh\~oes (reset) e
-3,74 milh\~oes (poda). O reset disparou 973 vezes no A1, 886 no A4 e 505 no A8; a
-poda, 980, 933 e 464 vezes. O reset \'e mais agressivo e restabelece rapidamente um
-modelo limpo; a poda preserva contextos recorrentes, mas paga o custo de varrer as
-tabelas.
+recupera\c{c}\~ao no A1 cai de 1,20 milh\~ao de s\'imbolos sem adapta\c{c}\~ao para
+0,15 milh\~ao com reset e 0,32 milh\~ao com poda. No A4, cai de 0,27 milh\~ao para
+0,10 e 0,08 milh\~ao. No A8 a mediana j\'a \'e pequena nos tr\^es casos
+(cerca de 0,09--0,11 milh\~ao), mas a m\'edia melhora de 4,96 milh\~oes para 3,53
+milh\~oes (reset) e 3,74 milh\~oes (poda). O reset disparou 973 vezes no A1, 886 no
+A4 e 505 no A8; a poda, 980, 933 e 464 vezes. O reset \'e mais agressivo e
+restabelece rapidamente um modelo limpo; a poda preserva contextos recorrentes, mas
+paga o custo de varrer as tabelas.
 
 No acumulado, o reset foi o melhor modo nos tr\^es alfabetos (3,3546, 2,3628 e
 2,1623 bits/byte), seguido pela poda (3,4382, 2,5250 e 2,2403) e pelo modo sem
@@ -469,8 +482,8 @@ e uma implementa\c{c}\~ao muito otimizada, enquanto este trabalho usa ordens men
 \emph{update exclusion}.
 
 No arquivo \texttt{dickens}, o PPMd de ordem 16 atinge 1,7893 bits/byte e o LZMA2
-2,2221; o A8 sem adapta\c{c}\~ao deste trabalho fica em 1,9075 bits/byte no payload
-real, com custo estimado de 1,779 na curva 3.2. Ou seja, em um arquivo pequeno e
+2,2221; o A8 sem adapta\c{c}\~ao deste trabalho fica em 1,9075 bits/byte, coerente
+com o valor final da curva 3.2. Ou seja, em um arquivo pequeno e
 homog\^eneo a diferen\c{c}a \'e bem menor do que no corpus completo. Os tempos n\~ao
 s\~ao diretamente compar\'aveis, pois os compressores t\^em implementa\c{c}\~oes,
 threads e estruturas de dados diferentes; a compara\c{c}\~ao aqui \'e de
@@ -486,6 +499,8 @@ efetivamente emitidos pelo codificador aritm\'etico. O monitor n\~ao soma o cust
 escapes nem o arredondamento do codificador; por isso o custo estimado \'e menor que
 o payload real (cerca de 0,2\% no A1, 3\% no A4 e 7\% no A8 no Dickens, no modo sem
 adapta\c{c}\~ao), mas a decis\~ao \'e id\^entica nos dois lados e mant\'em a sincronia.
+As curvas de 3.2 e 3.3, por outro lado, usam os bits efetivamente emitidos; a
+estimativa acima serve apenas para as decis\~oes de reset/poda.
 
 O custo computacional foi o fator mais limitante. A grade completa do A1 consumiu
 cerca de 226 horas de CPU, contra aproximadamente 5 horas para cada um dos outros
@@ -539,14 +554,14 @@ $K_{\max}=5$. No corpus completo, o reset foi o melhor modo nos tr\^es alfabetos
 11,9\% sobre o modo sem adapta\c{c}\~ao. A poda tamb\'em trouxe ganhos, mas foi mais
 lenta e ligeiramente pior em compress\~ao.
 
-As curvas de aprendizagem mostram que o modelo se aproxima do regime est\'avel nos
-primeiros 0,2--0,4 MB do Dickens (toler\^ancia de 5\%) e que as transi\c{c}\~oes do
-Silesia produzem degrada\c{c}\~ao imediata, com recupera\c{c}\~ao muito mais r\'apida
-quando o reset ou a poda est\~ao ativos. O reset reduziu a mediana de recupera\c{c}\~ao
-no A1 de 1,40 milh\~ao para 0,11 milh\~ao de s\'imbolos. Em compara\c{c}\~ao com o
-7-Zip PPMd de ordem 16 (1,8132 bits/byte no corpus completo), o melhor resultado
-deste trabalho ficou cerca de 19\% acima, o que \'e coerente com um modelo mais
-simples e com menos mem\'oria.
+As curvas de aprendizagem mostram que o modelo se aproxima do regime est\'avel em
+0,35 MB no A1 e em cerca de 2,8--3,0 MB no A4/A8 (toler\^ancia de 5\%) e que as
+transi\c{c}\~oes do Silesia produzem degrada\c{c}\~ao imediata, com recupera\c{c}\~ao
+muito mais r\'apida quando o reset ou a poda est\~ao ativos. O reset reduziu a
+mediana de recupera\c{c}\~ao no A1 de 1,20 milh\~ao para 0,15 milh\~ao de s\'imbolos.
+Em compara\c{c}\~ao com o 7-Zip PPMd de ordem 16 (1,8132 bits/byte no corpus
+completo), o melhor resultado deste trabalho ficou cerca de 19\% acima, o que \'e
+coerente com um modelo mais simples e com menos mem\'oria.
 
 Como trabalhos futuros, podem-se explorar ordens adaptativas por alfabeto,
 \emph{update exclusion}, SSE, uma pol\'itica de poda mais barata e uma

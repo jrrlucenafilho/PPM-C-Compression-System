@@ -4,6 +4,7 @@ data/
 results/
 *.ppm
 *.o
+__pycache__/
 report/*.aux
 report/*.log
 report/*.out

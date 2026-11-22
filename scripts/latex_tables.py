@@ -167,6 +167,37 @@ def dec_table(path):
     write(os.path.join(OUT, "dec_times.tex"), "\n".join(lines))
 
 
+
+def times_kmax_table(rows, bits):
+    if not rows:
+        return
+    by = {(r["kmax"], r["mode"]): r for r in rows if r["bits"] == bits}
+    kmaxes = sorted({r["kmax"] for r in rows if r["bits"] == bits})
+    lines = [
+        r"\begin{table}[H]",
+        r"\centering",
+        r"\small",
+        rf"\caption{{Tempos de compress\~ao e descompress\~ao por $K_{{\max}}$, "
+        rf"alfabeto A{bits}, na melhor $(j,p)$ de cada modo "
+        rf"(execu\c{{c}}\~ao isolada, 12 MB).}}",
+        rf"\label{{tab:times-A{bits}}}",
+        r"\begin{tabular}{rrrrrrr}",
+        r"\toprule",
+        r"$K_{\max}$ & \multicolumn{2}{c}{none} & \multicolumn{2}{c}{reset} & \multicolumn{2}{c}{prune} \\",
+        r"\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}",
+        r" & comp. & desc. & comp. & desc. & comp. & desc. \\",
+        r"\midrule",
+    ]
+    for k in kmaxes:
+        cells = []
+        for mode in ("none", "reset", "prune"):
+            r = by.get((k, mode))
+            cells += [f1(r["enc_s"]), f1(r["dec_s"])] if r else ["--", "--"]
+        lines.append(f"{k} & " + " & ".join(cells) + r" \\")
+    lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
+    write(os.path.join(OUT, f"times_A{bits}_kmax.tex"), "\n".join(lines))
+
+
 def final_table(results_dir):
     rows = []
     for bits in (1, 4, 8):
@@ -213,6 +244,9 @@ def main():
         summary_table(allrows)
     commercial_table(os.path.join(args.results, "commercial.csv"))
     dec_table(os.path.join(args.results, "31_dec_times.csv"))
+    arows = read(os.path.join(args.results, "31_times_by_kmax.csv"))
+    for bits in (1, 4, 8):
+        times_kmax_table(arows, bits)
     final_table(args.results)
 
 
