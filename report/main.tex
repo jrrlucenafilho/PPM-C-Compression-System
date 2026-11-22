@@ -186,7 +186,7 @@ de decis\~oes j\'a tomadas pelo modelo. Assim, compressor e descompressor chegam
 
 \subsection{Reset e poda}
 No modo \emph{reset}, todas as tabelas de contexto e o hist\'orico s\~ao limpos e o
-modelo recome\c{c}a como se estivesse no in\'icio do arquivo. No modo \emph{poda},
+modelo volta a aprender do zero, sem os contextos acumulados. No modo \emph{poda},
 os contextos vistos uma \'unica vez s\~ao removidos e as contagens dos demais s\~ao
 reduzidas por $(c+1)/2$; esse crit\'erio elimina contextos ef\^emeros e faz o modelo
 esquecer estat\'isticas antigas sem perder os contextos recorrentes. Em ambos os
@@ -243,6 +243,11 @@ reportado em cada linha \'e sempre o da execu\c{c}\~ao individual.
   \label{fig:kmax}
 \end{figure}
 
+Nas Tabelas~\ref{tab:kmax-A1}--\ref{tab:kmax-A8} o comprimento \'e apresentado em
+bits/byte; a convers\~ao para bits/s\'imbolo \'e imediata (A1: $\times 8$, A4:
+$\times 2$, A8: $\times 1$), e a Tabela~\ref{tab:resumo-31} j\'a traz as duas
+m\'etricas.
+
 No alfabeto A1, o modo sem adapta\c{c}\~ao continua melhorando lentamente com a
 ordem e atinge o melhor valor da grade em $K_{\max}=30$ (4,270 bits/byte). Os modos
 adaptativos t\^em comportamento diferente: tanto o reset quanto a poda t\^em \'optimo
@@ -267,7 +272,10 @@ nos tr\^es casos: 3,3546 bits/byte no A1, 2,3628 no A4 e 2,1623 no A8, contra
 3,9260, 2,6522 e 2,4538 sem adapta\c{c}\~ao. Isso corresponde a ganhos de 14,6\%,
 10,9\% e 11,9\%. A poda tamb\'em melhora os tr\^es alfabetos, mas fica atr\'as do
 reset (3,4382, 2,5250 e 2,2403 bits/byte). A Tabela~\ref{tab:final} traz os tempos
-de compress\~ao e descompress\~ao medidos nessa valida\c{c}\~ao.
+de compress\~ao e descompress\~ao medidos nessa valida\c{c}\~ao. A grade registra o
+tempo de compress\~ao de cada combina\c{c}\~ao; os tempos de descompress\~ao foram
+medidos nas nove configura\c{c}\~oes finais, pois decodificar todas as 4.947
+combina\c{c}\~oes dobraria o custo da grade.
 
 Cabe registrar uma escolha metodol\'ogica: para comparar os modos sem confundir o
 efeito da ordem, a valida\c{c}\~ao final usa o mesmo $K_{\max}$ nos tr\^es modos de
@@ -311,10 +319,11 @@ m\'edia ligeiramente acima da faixa de 1\% por mais tempo.
 Em bits/byte, os valores ideais finais s\~ao 3,016 (A1), 1,989 (A4) e 1,779 (A8).
 O A1 precisa de mais bits por byte porque cada s\'imbolo \'e um bit e o modelo
 paga o custo de codificar uma decis\~ao bin\'aria; o A8 aproveita diretamente os
-padr\~oes de byte. A diferen\c{c}a entre o custo ideal mostrado nas curvas e o
-payload real \'e pequena, mas existe: o codificador aritm\'etico acrescenta alguns
-bits de termina\c{c}\~ao e as decis\~oes de reset/poda usam o custo ideal, n\~ao o
-n\'umero de bits efetivamente emitidos.
+padr\~oes de byte. As curvas mostram o custo ideal; o payload real pode diferir
+alguns d\'ecimos de por cento por causa do arredondamento inteiro do codificador
+aritm\'etico e dos bits de termina\c{c}\~ao. As decis\~oes de reset/poda usam o custo
+ideal, n\~ao o n\'umero de bits efetivamente emitidos, o que \'e essencial para a
+sincronia.
 
 \subsection{Aprendizado e estacionariedade no Silesia (3.3)}
 \begin{figure}[H]
@@ -339,6 +348,25 @@ n\'umero de bits efetivamente emitidos.
 \begin{figure}[H]
   \centering
   \begin{subfigure}{.32\linewidth}
+    \includegraphics[width=\linewidth]{trace_silesia_A4_none.png}
+    \caption{sem adapta\c{c}\~ao}
+  \end{subfigure}\hfill
+  \begin{subfigure}{.32\linewidth}
+    \includegraphics[width=\linewidth]{trace_silesia_A4_reset.png}
+    \caption{reset}
+  \end{subfigure}\hfill
+  \begin{subfigure}{.32\linewidth}
+    \includegraphics[width=\linewidth]{trace_silesia_A4_prune.png}
+    \caption{poda}
+  \end{subfigure}
+  \caption{Comprimento m\'edio progressivo no fluxo concatenado do Silesia,
+  alfabeto A4, com as 11 transi\c{c}\~oes marcadas.}
+  \label{fig:silesia-A4}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}{.32\linewidth}
     \includegraphics[width=\linewidth]{trace_silesia_A8_none.png}
     \caption{sem adapta\c{c}\~ao}
   \end{subfigure}\hfill
@@ -356,8 +384,8 @@ n\'umero de bits efetivamente emitidos.
 \end{figure}
 
 As curvas mostram quedas claras de desempenho nas transi\c{c}\~oes entre os doze
-arquivos. Medindo o custo local em janelas de 2 milh\~oes de s\'imbolos antes e
-depois de cada transi\c{c}\~ao, o custo posterior \'e, em m\'edia, 1,65 vez o
+arquivos. Medindo o custo local em janelas equivalentes a 2 MB antes e depois de
+cada transi\c{c}\~ao, o custo posterior \'e, em m\'edia, 1,65 vez o
 anterior no A1 sem adapta\c{c}\~ao; com reset e poda essa raz\~ao cai para 1,37 e
 1,40. No A4, a raz\~ao cai de 1,62 para 1,47 (reset) e 1,45 (poda). No A8 a
 diferen\c{c}a local \'e menor (1,69 contra 1,66 e 1,65), mas o ganho acumulado no
@@ -376,9 +404,9 @@ preserva contextos recorrentes, mas paga o custo de varrer as tabelas.
 
 No acumulado, o reset foi o melhor modo nos tr\^es alfabetos (3,3546, 2,3628 e
 2,1623 bits/byte), seguido pela poda (3,4382, 2,5250 e 2,2403) e pelo modo sem
-adapta\c{c}\~ao (3,9260, 2,6522 e 2,4538). O A4 foi o alfabeto em que a poda ficou
-mais pr\'oxima do reset em compress\~ao, mas tamb\'em o mais penalizado em tempo,
-por causa das varreduras completas.
+adapta\c{c}\~ao (3,9260, 2,6522 e 2,4538). No A4 a poda ficou mais distante do
+reset (6,9\% acima, contra 2,5\% no A1 e 3,6\% no A8) e foi a mais penalizada em
+tempo, por causa das varreduras completas.
 
 \subsection{Integridade}
 As nove configura\c{c}\~oes finais (tr\^es alfabetos e tr\^es modos) foram executadas
@@ -456,7 +484,8 @@ enquanto o melhor resultado deste trabalho foi 2,1623 (A8 com reset), uma difere
 de cerca de 19\%. Parte da diferen\c{c}a vem da ordem e do tamanho do modelo, parte
 vem de t\'ecnicas que n\~ao foram implementadas, como \emph{update exclusion},
 \emph{secondary symbol estimation} (SSE) e uma pol\'itica de mem\'oria mais
-eficiente. A implementa\c{c}\~ao \'e single-thread e usa tabelas hash com
+eficiente. O compressor em si \'e single-thread (a grade apenas paraleliza
+configura\c{c}\~oes independentes) e usa tabelas hash com
 \texttt{std::unordered\_map} e vetores ordenados, o que tamb\'em limita a velocidade
 em ordens altas.
 
