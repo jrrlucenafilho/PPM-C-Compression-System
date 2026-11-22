@@ -36,6 +36,11 @@ def f3(x):
     return f"{x:.3f}".replace(".", ",")
 
 
+def f1(x):
+    s = f"{x:,.1f}"
+    return s.replace(",", "X").replace(".", ",").replace("X", ".")
+
+
 def best(rows, mode, kmax=None):
     sel = [r for r in rows if r["mode"] == mode and (kmax is None or r["kmax"] == kmax)]
     return min(sel, key=lambda r: r["bits_per_byte"]) if sel else None
@@ -146,7 +151,7 @@ def dec_table(path):
         r"\centering",
         r"\caption{Tempos de compress\~ao e descompress\~ao das melhores "
         r"configura\c{c}\~oes da calibra\c{c}\~ao, em execu\c{c}\~ao isolada "
-        r"(uma thread, 12 MB).}",
+        r"(uma thread, 12 MB; no modo \emph{none}, $j$ e $p$ n\~ao afetam).}",
         r"\label{tab:dec-times}",
         r"\begin{tabular}{llrrrrrr}",
         r"\toprule",
@@ -156,7 +161,7 @@ def dec_table(path):
     for r in rows:
         lines.append(
             f"A{r['bits']} & {r['mode']} & {r['kmax']} & {r['j']} & {r['p']} & "
-            f"{f3(r['bits_per_byte'])} & {r['enc_s']:.1f} & {r['dec_s']:.1f} \\\\"
+            f"{f3(r['bits_per_byte'])} & {f1(r['enc_s'])} & {f1(r['dec_s'])} \\\\"
         )
     lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
     write(os.path.join(OUT, "dec_times.tex"), "\n".join(lines))
@@ -172,7 +177,7 @@ def final_table(results_dir):
     lines = [
         r"\begin{table}[H]",
         r"\centering",
-        r"\caption{Configurações finais no corpus Silesia completo (uma thread).}",
+        r"\caption{Configura\c{c}\~oes finais no corpus Silesia completo (uma thread; no modo \emph{none}, $j$ e $p$ n\~ao afetam).}",
         r"\label{tab:final}",
         r"\begin{tabular}{llrrrrrrr}",
         r"\toprule",
@@ -182,7 +187,7 @@ def final_table(results_dir):
     for r in rows:
         lines.append(
             f"A{r['bits']} & {r['mode']} & {r['kmax']} & {r['j']} & {r['p']} & "
-            f"{f3(r['bits_per_byte'])} & {r['enc_s']:.1f} & {r['dec_s']:.1f} & "
+            f"{f3(r['bits_per_byte'])} & {f1(r['enc_s'])} & {f1(r['dec_s'])} & "
             f"{r['resets']}/{r['prunes']} \\\\"
         )
     lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
