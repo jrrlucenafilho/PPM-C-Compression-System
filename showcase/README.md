@@ -1,4 +1,4 @@
-# Small Dickens subset application
+# Small Dickens subset compression example
 
 - `dickens_small.txt` — Chapter I of *A Child's History of England* (Charles Dickens)
 
@@ -24,8 +24,6 @@ bits=8 kmax=5 mode=none j=50000 p=20
 in=14160B out=5351B payload=5319B symbols=14160
 bits/symbol=3.00508 bits/byte=3.00508 resets=0 prunes=0 time=0.00692643s (2.04434 Msym/s)
 ```
-
-What to point out:
 
 - `in` / `out` — original and compressed file sizes (the compressed file has a
   32-byte header; `payload` is the arithmetic-coded data alone).
@@ -62,7 +60,7 @@ OK
 `cmp` prints nothing when the files are identical; `OK` confirms success. This
 is the binary comparison required by the specification.
 
-## 4. Show the performance monitor (windows, reset/prune, decoder sync)
+## 4. Performance monitor (windows, reset/prune, decoder sync)
 
 `--monitor-log` prints every full `j`-symbol window: position `n`, the window's
 estimated average, the previous window and percentage change, and any reset or
@@ -112,7 +110,7 @@ diff showcase/monitor_c.txt showcase/monitor_d.txt && echo "same monitor decisio
 
 Expected output: `same monitor decisions`.
 
-## Optional: progressive average-length data
+## Progressive average-length data
 
 The 3.2-style curve is written to a CSV, not printed to the terminal:
 
