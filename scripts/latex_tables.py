@@ -82,7 +82,7 @@ def kmax_table(rows, bits):
         cells = []
         for mode in MODES:
             b = best(rows, mode, k)
-            cells.extend([f3(b["bits_per_byte"]), f3(b["bits_per_symbol"])] if b else ["--", "--"])
+            cells.extend([f3(b["bits_per_byte"]), f3(b["bits_per_symbol"])] if b else ["-", "-"])
         lines.append(f"{k} & " + " & ".join(cells) + r" \\")
     lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
     write(os.path.join(OUT, f"31_A{bits}_kmax.tex"), "\n".join(lines))
@@ -112,7 +112,7 @@ def summary_table(allrows):
             b = best(rows, mode)
             if not b:
                 continue
-            gain = "--"
+            gain = "-"
             if base and mode != "none":
                 g = 100.0 * (base["bits_per_byte"] - b["bits_per_byte"]) / base["bits_per_byte"]
                 gain = f"{g:+.2f}".replace(".", ",") + r"\,\%"
@@ -216,7 +216,7 @@ def times_kmax_table(rows, bits):
         cells = []
         for mode in ("none", "reset", "prune"):
             r = by.get((k, mode))
-            cells += [f1(r["enc_s"]), f1(r["dec_s"])] if r else ["--", "--"]
+            cells += [f1(r["enc_s"]), f1(r["dec_s"])] if r else ["-", "-"]
         lines.append(f"{k} & " + " & ".join(cells) + r" \\")
     lines += [r"\bottomrule", r"\end{tabular}", r"\end{table}", ""]
     write(os.path.join(OUT, f"times_A{bits}_kmax.tex"), "\n".join(lines))
