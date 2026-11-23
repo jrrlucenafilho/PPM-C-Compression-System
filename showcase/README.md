@@ -112,11 +112,6 @@ diff showcase/monitor_c.txt showcase/monitor_d.txt && echo "same monitor decisio
 
 Expected output: `same monitor decisions`.
 
-On this short, homogeneous excerpt the reset fires but does not improve the
-final ratio; the demonstration is about the window decisions and the
-compressor/decompressor synchronization. On the full Silesia corpus, reset
-does improve the ratio (see the report).
-
 ## Optional: progressive average-length data
 
 The 3.2-style curve is written to a CSV, not printed to the terminal:
