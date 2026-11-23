@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <string>
 #include <unordered_map>
@@ -52,6 +53,7 @@ struct Params {
   uint32_t j = 50000;         // monitoring window, symbols
   uint32_t p = 20;            // tolerated degradation, percent
   uint64_t mem_cap = 8000000; // max number of contexts kept
+  bool monitor_log = false;   // print each window and reset/prune decision
 };
 
 // ---------------------------------------------------------------- bit stream
@@ -310,6 +312,7 @@ public:
   // Builds a model with `p.bits`, `p.kmax`, `p.mode`, `p.j`, `p.p` and
   // `p.mem_cap`: one hash table per order 0..kmax, context masks, and cleared
   // exclusion flags. No context is created until update() is called.
+  // When `p.monitor_log` is set, prints the monitoring configuration once.
   explicit Model(const Params &p)
       : P_(p), alphabet_(1 << p.bits), maps_(static_cast<size_t>(p.kmax) + 1),
         mask_(static_cast<size_t>(p.kmax) + 1) {
@@ -322,6 +325,18 @@ public:
       mask_[k] = sh == 0 ? 0ull : (sh >= 64 ? ~0ull : ((1ull << sh) - 1));
     }
     std::memset(excluded_, 0, sizeof(excluded_));
+    if (P_.monitor_log) {
+      if (P_.mode == Mode::None || P_.j == 0) {
+        std::fprintf(stderr, "[monitor] disabled (mode=%s, j=%u)\n",
+                     modeName(P_.mode), P_.j);
+      } else {
+        std::fprintf(
+            stderr,
+            "[monitor] enabled: window j=%u symbols, p=%u%%, action=%s "
+            "(estimated bits/symbol per window)\n",
+            P_.j, P_.p, P_.mode == Mode::Reset ? "reset" : "prune");
+      }
+    }
   }
 
   // Encodes `sym` through `coder` using PPM-C exclusion, searching from the
@@ -485,6 +500,7 @@ public:
   // `cost` intentionally excludes escape bits (see encodeSymbol()); the
   // monitor only compares windows, so a constant bias cancels out.
   // The first window after a trigger becomes the new baseline.
+  // With `monitor_log`, prints each window average and the trigger decision.
   void account(uint64_t cost) {
     if (P_.mode == Mode::None || P_.j == 0)
       return;
@@ -492,7 +508,31 @@ public:
     if (++win_ < P_.j)
       return;
     // Integer test of cur > prev * (1 + p/100); avoids floating point.
-    if (prevValid_ && cur_ * 100 > prev_ * (100 + P_.p)) {
+    const bool trigger = prevValid_ && cur_ * 100 > prev_ * (100 + P_.p);
+    if (P_.monitor_log) {
+      const double scale = 1.0 / (static_cast<double>(P_.j) * 65536.0);
+      const double avg = static_cast<double>(cur_) * scale;
+      std::fprintf(stderr, "[monitor] n=%llu window=%llu avg=%.4f bits/sym",
+                   static_cast<unsigned long long>(pos_),
+                   static_cast<unsigned long long>(pos_ / P_.j), avg);
+      if (!prevValid_) {
+        std::fprintf(stderr, " (baseline)");
+      } else if (prev_ != 0) {
+        const double prevAvg = static_cast<double>(prev_) * scale;
+        const double delta =
+            100.0 * (static_cast<double>(cur_) - static_cast<double>(prev_)) /
+            static_cast<double>(prev_);
+        std::fprintf(stderr, " prev=%.4f (%+.2f%%)", prevAvg, delta);
+      } else {
+        std::fprintf(stderr, " prev=0.0000 (n/a)");
+      }
+      if (trigger) {
+        std::fprintf(stderr, " > p=%u%% -> %s", P_.p,
+                     P_.mode == Mode::Reset ? "RESET" : "PRUNE");
+      }
+      std::fprintf(stderr, "\n");
+    }
+    if (trigger) {
       if (P_.mode == Mode::Reset)
         resetModel();
       else
@@ -504,6 +544,23 @@ public:
     }
     cur_ = 0;
     win_ = 0;
+  }
+
+  // Prints a final monitoring summary when logging is enabled: full window
+  // count, trigger counters, and a trailing partial window (not compared).
+  void monitorSummary() const {
+    if (!P_.monitor_log || P_.mode == Mode::None || P_.j == 0)
+      return;
+    std::fprintf(stderr,
+                 "[monitor] done: windows=%llu resets=%llu prunes=%llu\n",
+                 static_cast<unsigned long long>(pos_ / P_.j),
+                 static_cast<unsigned long long>(resets_),
+                 static_cast<unsigned long long>(prunes_));
+    if (win_ != 0)
+      std::fprintf(
+          stderr,
+          "[monitor] final partial window: %llu symbols (not compared)\n",
+          static_cast<unsigned long long>(win_));
   }
 
   // Clears all context tables and the history, resets the tracked node count,

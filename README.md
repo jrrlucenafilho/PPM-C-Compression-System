@@ -33,6 +33,11 @@ cmp entrada original && echo OK
 
 # curva de comprimento medio progressivo (3.2 / 3.3)
 ./build/ppm c entrada saida.ppm --bits 8 --kmax 6 --trace curva.csv --interval 10000
+
+# mostrar cada janela do monitor e os disparos de reset/poda (stderr)
+./build/ppm c entrada saida.ppm --bits 8 --kmax 6 --mode reset \
+    --j 50000 --p 20 --monitor-log
+./build/ppm d saida.ppm original --monitor-log
 ```
 
 O cabecalho do arquivo `.ppm` guarda alfabeto, `Kmax`, modo, `j`, `p`, tamanho
@@ -58,6 +63,10 @@ mesmo modelo, inclusive resets e podas.
   anterior; se a atual for mais de `p%` pior, dispara reset ou poda. O custo ideal
   e usado (nao a posicao no arquivo) para que compressor e descompressor cheguem
   a mesma decisao.
+- **Log do monitor:** `--monitor-log` imprime em `stderr`, tanto em `c` quanto em
+  `d`, cada janela (`n`, media estimada em bits/simbolo, variacao percentual) e o
+  disparo de reset/poda. Filtrando as linhas `[monitor]`, os logs das duas
+  execucoes sao identicos, o que demonstra a sincronia.
 - **Reset:** limpa todas as tabelas e o historico de contexto.
 - **Poda:** remove contextos vistos uma unica vez e reduz as demais contagens por
   `(c+1)/2`. E o criterio de "eliminacao de contextos por frequencia".

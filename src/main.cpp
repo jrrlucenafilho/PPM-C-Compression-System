@@ -2,8 +2,8 @@
 //
 //   ppm c <in> <out> [--bits 1|4|8] [--kmax N] [--mode none|reset|prune]
 //                    [--j N] [--p N] [--mem N] [--trace file.csv] [--interval
-//                    N]
-//   ppm d <in> <out>
+//                    N] [--monitor-log]
+//   ppm d <in> <out> [--monitor-log]
 //   ppm bench --files a,b --bits 1,4,8 --kmax 0:8 --j 10000,50000
 //             --p 10,20,30 --modes none,reset,prune [--limit N] [--threads N]
 //             [--out results.csv] [--verify]
@@ -101,7 +101,9 @@ bool writeAll(const std::string &path, const std::vector<uint8_t> &data) {
 // non-null: `payload_bytes` = coded payload size (header excluded), `seconds` =
 // compression time, `resets`/`prunes` = monitor counters. If `tracePath` is
 // non-empty, writes a progressive CSV every `traceInterval` symbols using the
-// actual emitted bits and the model's ideal cost. Returns true on success.
+// actual emitted bits and the model's ideal cost. If `P.monitor_log` is set,
+// prints each j-symbol window and reset/prune decision to stderr. Returns true
+// on success.
 bool compressBuffer(const std::vector<uint8_t> &in, const Params &P,
                     std::vector<uint8_t> &out, uint64_t *payload_bytes,
                     double *seconds,
@@ -154,6 +156,7 @@ bool compressBuffer(const std::vector<uint8_t> &in, const Params &P,
             << ideal / static_cast<double>(i + 1) << '\n';
     }
   }
+  model.monitorSummary();
   coder.finish();
   bw.flush();
   if (trace.is_open() && nsym > 0) {
@@ -188,9 +191,12 @@ bool compressBuffer(const std::vector<uint8_t> &in, const Params &P,
 // 32-byte header, rebuilds the model from its parameters, decodes exactly the
 // original byte count into `out`, and runs the same reset/prune decisions.
 // If non-null, `seconds` receives the decode time and `error` receives a
-// human-readable failure reason. Returns false on invalid input.
+// human-readable failure reason. When `monitorLog` is true, prints the same
+// per-window monitoring lines as the compressor (proof of synchronization).
+// Returns false on invalid input.
 bool decompressBuffer(const std::vector<uint8_t> &in, std::vector<uint8_t> &out,
-                      double *seconds, std::string *error) {
+                      double *seconds, std::string *error,
+                      bool monitorLog = false) {
   if (in.size() < sizeof(Header)) {
     if (error)
       *error = "file too short";
@@ -209,6 +215,7 @@ bool decompressBuffer(const std::vector<uint8_t> &in, std::vector<uint8_t> &out,
   P.mode = static_cast<Mode>(h.mode);
   P.j = h.j;
   P.p = h.p;
+  P.monitor_log = monitorLog;
   // Files created before mem_cap was stored carry 0; use the default rather
   // than a cap of zero, which would prevent any context from being created.
   P.mem_cap = h.mem_cap ? h.mem_cap : 8000000;
@@ -251,6 +258,7 @@ bool decompressBuffer(const std::vector<uint8_t> &in, std::vector<uint8_t> &out,
       }
     }
   }
+  model.monitorSummary();
   if (nbits != 0 && out.size() < h.orig_bytes) {
     cur = static_cast<uint8_t>(cur << (8 - nbits));
     out.push_back(cur);
@@ -312,7 +320,8 @@ void usage() {
          "none|reset|prune]\n"
          "                   [--j N] [--p N] [--mem N] [--trace file.csv] "
          "[--interval N]\n"
-         "  ppm d <in> <out>\n"
+         "                   [--monitor-log]\n"
+         "  ppm d <in> <out> [--monitor-log]\n"
          "  ppm bench --files a,b --bits 1,4,8 --kmax 0:8 --j 10000,50000\n"
          "            --p 10,20,30 --modes none,reset,prune [--limit N] "
          "[--threads N]\n"
@@ -358,6 +367,8 @@ int cmdCompress(int argc, char **argv) {
       tracePath = next("--trace");
     else if (a == "--interval")
       interval = static_cast<uint32_t>(std::stoul(next("--interval")));
+    else if (a == "--monitor-log")
+      P.monitor_log = true;
     else if (a == "--mode") {
       if (!parseMode(next("--mode"), P.mode)) {
         std::cerr << "invalid mode\n";
@@ -410,13 +421,25 @@ int cmdCompress(int argc, char **argv) {
   return 0;
 }
 
-// CLI handler for `ppm d <in> <out>`: reads the compressed file `in`,
-// decompresses it, writes the original bytes to `out`, and prints the output
-// size and decode time to stderr. Returns 0 on success, 1 on errors.
+// CLI handler for `ppm d <in> <out> [--monitor-log]`: reads the compressed
+// file `in`, decompresses it, writes the original bytes to `out`, and prints
+// the output size and decode time to stderr. With --monitor-log it also prints
+// the same per-window monitoring lines as the compressor. Returns 0 on success,
+// 1 on errors.
 int cmdDecompress(int argc, char **argv) {
   if (argc < 4) {
     usage();
     return 1;
+  }
+  bool monitorLog = false;
+  for (int i = 4; i < argc; ++i) {
+    std::string a = argv[i];
+    if (a == "--monitor-log")
+      monitorLog = true;
+    else {
+      std::cerr << "unknown option: " << a << "\n";
+      return 1;
+    }
   }
   std::vector<uint8_t> packed, data;
   if (!readAll(argv[2], packed)) {
@@ -425,7 +448,7 @@ int cmdDecompress(int argc, char **argv) {
   }
   double secs = 0;
   std::string err;
-  if (!decompressBuffer(packed, data, &secs, &err)) {
+  if (!decompressBuffer(packed, data, &secs, &err, monitorLog)) {
     std::cerr << "error: " << err << "\n";
     return 1;
   }

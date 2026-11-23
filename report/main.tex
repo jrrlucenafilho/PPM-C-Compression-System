@@ -190,7 +190,12 @@ compara\c{c}\~ao reinicia no ciclo seguinte.
 Usa-se o custo estimado, e n\~ao o n\'umero de bits efetivamente emitidos, porque ele
 depende apenas de decis\~oes j\'a tomadas pelo modelo. Assim, compressor e
 descompressor chegam \`a mesma conclus\~ao no mesmo ponto, sem precisar transmitir
-nenhum sinal extra.
+nenhum sinal extra. Para inspe\c{c}\~ao, a op\c{c}\~ao \texttt{-{}-monitor-log}
+imprime em \texttt{stderr}, tanto na compress\~ao quanto na descompress\~ao, cada
+janela (posi\c{c}\~ao $n$, m\'edia estimada e varia\c{c}\~ao percentual em
+rela\c{c}\~ao \`a anterior) e o disparo de reset ou poda. Como as duas
+execu\c{c}\~oes usam o mesmo custo, as linhas \texttt{[monitor]} coincidem, o que
+torna a sincronia verific\'avel na pr\'atica.
 
 \subsection{Reset e poda}
 No modo \emph{reset}, todas as tabelas de contexto e o hist\'orico s\~ao limpos e o
