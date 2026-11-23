@@ -13,6 +13,8 @@ mkdir -p "$OUT"
 exec >>"$LOG" 2>&1
 echo "=== prefinal started $(date -Is) ==="
 
+# Run one full-corpus final: $1=bits, $2=Kmax, $3=j, $4=p, $5=mode. Staged in a
+# temp CSV and moved to final_A{bits}_{mode}.csv only after a verified run.
 run() {
   local bits=$1 kmax=$2 j=$3 p=$4 mode=$5
   local out="$OUT/final_A${bits}_${mode}.csv"

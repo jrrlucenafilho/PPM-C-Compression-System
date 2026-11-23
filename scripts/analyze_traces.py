@@ -13,6 +13,8 @@ RES = os.path.join(ROOT, "results")
 
 
 def load(path):
+    """Read a trace CSV (`n,bits,avg,...`) and return (positions, averages)
+    as two parallel lists: symbol counts and accumulated bits per symbol."""
     ns, av = [], []
     with open(path, newline="") as f:
         for r in csv.DictReader(f):
@@ -22,6 +24,8 @@ def load(path):
 
 
 def dickens():
+    """Print final bits/byte for the Dickens trace plus the symbol count and
+    corpus percentage needed to get within 5% and 1% of it (A1, A4, A8)."""
     print("=== Dickens (bits/byte) ===")
     total = 10192446
     for bits in (1, 4, 8):
@@ -30,6 +34,8 @@ def dickens():
         bpb = [a * scale for a in av]
         final = bpb[-1]
         def point(tol):
+            """Return (symbol count, corpus %) of the first trace point from
+            which bits/byte stays within `tol` of the final value."""
             outside = [i for i, v in enumerate(bpb) if abs(v - final) / final > tol]
             i = outside[-1] + 1 if outside else 0
             return ns[i], 100.0 * ns[i] * bits / 8.0 / total
@@ -41,6 +47,9 @@ def dickens():
 
 
 def silesia():
+    """Print final bits/byte, mean boundary ratio and recovery time for every
+    alphabet/mode on the concatenated Silesia traces (reads data/silesia for
+    the per-file sizes that define the boundaries)."""
     files = sorted(f for f in os.listdir(os.path.join(ROOT, "data", "silesia"))
                    if os.path.isfile(os.path.join(ROOT, "data", "silesia", f)))
     sizes = [os.path.getsize(os.path.join(ROOT, "data", "silesia", f)) for f in files]

@@ -12,6 +12,7 @@ exec >>"$LOG" 2>&1
 echo "=== watcher started $(date -Is) ==="
 printf 'watching\n' > "$OUT/AUTO_FINAL_WATCHING"
 
+# Returns success while PID $1 is still a running "build/ppm bench" process.
 alive() {
   [ -r "/proc/$1/cmdline" ] || return 1
   tr '\0' ' ' < "/proc/$1/cmdline" | grep -q 'build/ppm bench'

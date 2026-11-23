@@ -1,20 +1,24 @@
 \begin{table}[H]
 \centering
-\caption{Configura\c{c}\~oes finais no corpus Silesia completo (uma thread; no modo \emph{none}, $j$ e $p$ n\~ao afetam).}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Configura\c{c}\~oes finais no corpus Silesia completo (uma thread, \texttt{mem\_cap}=20 milh\~oes; mesma configura\c{c}\~ao $(K_{\max},j,p)$ nos tr\^es modos de cada alfabeto; no modo \emph{none}, $j$ e $p$ n\~ao afetam).}
 \label{tab:final}
-\begin{tabular}{llrrrrrrr}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llrrrrrrrr}
 \toprule
-A & modo & $K_{\max}$ & $j$ & $p$ & bits/byte & comp. (s) & desc. (s) & reset/poda \\
+A & modo & $K_{\max}$ & $j$ & $p$ & bits/byte & bits/s\'im. & comp. (s) & desc. (s) & reset/poda \\
 \midrule
-A1 & none & 17 & 50000 & 30 & 3,926 & 1.332,3 & 1.056,0 & 0/0 \\
-A1 & reset & 17 & 50000 & 30 & 3,355 & 499,6 & 546,8 & 973/0 \\
-A1 & prune & 17 & 50000 & 30 & 3,438 & 709,3 & 879,4 & 0/980 \\
-A4 & none & 8 & 10000 & 50 & 2,652 & 477,8 & 617,1 & 0/0 \\
-A4 & reset & 8 & 10000 & 50 & 2,363 & 458,1 & 361,5 & 886/0 \\
-A4 & prune & 8 & 10000 & 50 & 2,525 & 1.242,5 & 1.701,4 & 0/933 \\
-A8 & none & 5 & 10000 & 50 & 2,454 & 331,9 & 331,3 & 0/0 \\
-A8 & reset & 5 & 10000 & 50 & 2,162 & 226,0 & 227,5 & 505/0 \\
-A8 & prune & 5 & 10000 & 50 & 2,240 & 510,1 & 501,5 & 0/464 \\
+A1 & none & 17 & 50000 & 30 & 3,926 & 0,491 & 1.332,3 & 1.056,0 & 0/0 \\
+A1 & reset & 17 & 50000 & 30 & 3,355 & 0,419 & 499,6 & 546,8 & 973/0 \\
+A1 & prune & 17 & 50000 & 30 & 3,438 & 0,430 & 709,3 & 879,4 & 0/980 \\
+A4 & none & 8 & 10000 & 50 & 2,652 & 1,326 & 477,8 & 617,1 & 0/0 \\
+A4 & reset & 8 & 10000 & 50 & 2,363 & 1,181 & 458,1 & 361,5 & 886/0 \\
+A4 & prune & 8 & 10000 & 50 & 2,525 & 1,263 & 1.242,5 & 1.701,4 & 0/933 \\
+A8 & none & 5 & 10000 & 50 & 2,454 & 2,454 & 331,9 & 331,3 & 0/0 \\
+A8 & reset & 5 & 10000 & 50 & 2,162 & 2,162 & 226,0 & 227,5 & 505/0 \\
+A8 & prune & 5 & 10000 & 50 & 2,240 & 2,240 & 510,1 & 501,5 & 0/464 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}

@@ -25,6 +25,8 @@ KMAX = {1: 32, 4: 8, 8: 8}
 
 
 def load_grid(bits):
+    """Return {(kmax, mode): row} for alphabet `bits`, keeping the lowest
+    bits/byte row of each group (skipping rows without payload_bytes)."""
     path = os.path.join(OUT, f"31_A{bits}.csv")
     groups = {}
     with open(path, newline="") as f:
@@ -38,6 +40,8 @@ def load_grid(bits):
 
 
 def specs():
+    """Yield (bits, kmax, mode, j, p) for every alphabet/Kmax/mode combination
+    that must be timed, reading the best (j,p) from the 3.1 grid."""
     for bits in (1, 4, 8):
         g = load_grid(bits)
         for k in range(KMAX[bits] + 1):
@@ -49,6 +53,8 @@ def specs():
 
 
 def existing_keys():
+    """Return the set of (bits, kmax, mode) keys already present in the merged
+    timing CSV, so finished jobs can be skipped."""
     keys = set()
     if not os.path.exists(MERGED):
         return keys
@@ -59,6 +65,8 @@ def existing_keys():
 
 
 def main():
+    """Run the missing timing jobs sequentially and append each verified row to
+    results/31_times_by_kmax.csv; writes a DONE/FAILED marker and returns 0."""
     todo = [s for s in specs() if (s[0], s[1], s[2]) not in existing_keys()]
     total = len(list(specs()))
     print(f"Option A: {total} total, {len(todo)} remaining", flush=True)

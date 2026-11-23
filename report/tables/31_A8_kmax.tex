@@ -1,20 +1,23 @@
 \begin{table}[H]
 \centering
-\caption{Bits/byte por $K_{\max}$, alfabeto A8, melhor $(j,p)$ de cada modo.}
+\small
+\caption{Bits/byte e bits/s\'imbolo por $K_{\max}$, alfabeto A8, melhor $(j,p)$ de cada modo.}
 \label{tab:kmax-A8}
-\begin{tabular}{rrrr}
+\begin{tabular}{rrrrrrr}
 \toprule
-$K_{\max}$ & none & reset & prune \\
+$K_{\max}$ & \multicolumn{2}{c}{none} & \multicolumn{2}{c}{reset} & \multicolumn{2}{c}{prune} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+ & b/byte & b/s\'im. & b/byte & b/s\'im. & b/byte & b/s\'im. \\
 \midrule
-0 & 5,359 & 5,308 & 5,357 \\
-1 & 4,586 & 3,962 & 4,308 \\
-2 & 3,637 & 3,154 & 3,414 \\
-3 & 3,171 & 2,934 & 3,034 \\
-4 & 3,028 & 2,866 & 2,935 \\
-5 & 2,992 & 2,854 & 2,912 \\
-6 & 3,049 & 2,865 & 2,918 \\
-7 & 3,177 & 2,878 & 2,929 \\
-8 & 3,261 & 2,890 & 2,938 \\
+0 & 5,359 & 5,359 & 5,308 & 5,308 & 5,357 & 5,357 \\
+1 & 4,586 & 4,586 & 3,962 & 3,962 & 4,308 & 4,308 \\
+2 & 3,637 & 3,637 & 3,154 & 3,154 & 3,414 & 3,414 \\
+3 & 3,171 & 3,171 & 2,934 & 2,934 & 3,034 & 3,034 \\
+4 & 3,028 & 3,028 & 2,866 & 2,866 & 2,935 & 2,935 \\
+5 & 2,992 & 2,992 & 2,854 & 2,854 & 2,912 & 2,912 \\
+6 & 3,049 & 3,049 & 2,865 & 2,865 & 2,918 & 2,918 \\
+7 & 3,177 & 3,177 & 2,878 & 2,878 & 2,929 & 2,929 \\
+8 & 3,261 & 3,261 & 2,890 & 2,890 & 2,938 & 2,938 \\
 \bottomrule
 \end{tabular}
 \end{table}

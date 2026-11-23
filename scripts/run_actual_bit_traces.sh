@@ -17,6 +17,8 @@ echo "=== actual-bit traces start $(date -Is) ==="
 pids=()
 fail=0
 
+# Compress data/all.bin with $1=bits, $2=Kmax, $3=j, $4=p, $5=mode and write
+# the progressive trace to results/trace_silesia_A{bits}_{mode}.csv.
 run_silesia() {
   local bits=$1 kmax=$2 j=$3 p=$4 mode=$5
   local trace="$OUT/trace_silesia_A${bits}_${mode}.csv"

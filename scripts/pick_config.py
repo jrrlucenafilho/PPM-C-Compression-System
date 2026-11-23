@@ -17,6 +17,8 @@ RES = os.path.join(ROOT, "results")
 
 
 def load(bits):
+    """Read and cast the completed 3.1 grid rows for alphabet `bits`; returns
+    an empty list when the CSV is missing or a row is malformed."""
     path = os.path.join(RES, f"31_A{bits}.csv")
     rows = []
     if not os.path.exists(path):
@@ -37,6 +39,8 @@ def load(bits):
 
 
 def choose(rows, max_kmax):
+    """Return the reset-mode row with the best bits/byte whose Kmax is within
+    0.3% of that best (smallest Kmax wins); falls back to any mode, or None."""
     sel = [r for r in rows if r["mode"] == "reset" and r["kmax"] <= max_kmax]
     if not sel:
         sel = [r for r in rows if r["kmax"] <= max_kmax]
@@ -48,6 +52,8 @@ def choose(rows, max_kmax):
 
 
 def main():
+    """Print shell assignments (`export B{bits}=... J{bits}=... P{bits}=...`)
+    for the chosen configs; returns 0 on success, 1 if an alphabet has no rows."""
     out = []
     ok = True
     for bits, max_kmax in ((1, 20), (4, 8), (8, 8)):

@@ -68,7 +68,8 @@ de ida e volta. Em uma grade de calibra\c{c}\~ao de 12 MB (1 MB de cada arquivo)
 o A1 teve melhor resultado com reset em $K_{\max}=17$, o A4 com $K_{\max}=8$ e o A8
 com $K_{\max}=5$. No corpus completo de 211,9 MB, o reset foi o melhor modo:
 3,3546 bits/byte no A1, 2,3628 no A4 e 2,1623 no A8, ganhos de 14,6\%, 10,9\% e
-11,9\% sobre o modo sem adapta\c{c}\~ao. As curvas progressivas mostram
+11,9\% sobre o modo sem adapta\c{c}\~ao na mesma configura\c{c}\~ao de cada alfabeto
+(A1 em $K_{\max}=17$). As curvas progressivas mostram
 estabiliza\c{c}\~ao em poucos megabytes no Dickens e quedas claras nas 11
 transi\c{c}\~oes do Silesia, com recupera\c{c}\~ao bem mais curta quando reset ou
 poda est\~ao ativos.
@@ -84,10 +85,11 @@ o que reflete a maior complexidade do modelo comercial.
 \subsection{Contextualiza\c{c}\~ao}
 A compress\~ao sem perda explora a redund\^ancia estat\'istica de uma fonte para
 representar a mesma informa\c{c}\~ao com menos bits. Modelos baseados em contextos,
-como o PPM (\emph{Prediction by Partial Matching}), estimam a probabilidade do
-pr\'oximo s\'imbolo a partir dos $k$ s\'imbolos anteriores; quanto maior a ordem
-$k$, mais espec\'ifica \'e a previs\~ao, mas maior \'e o custo de armazenamento e o
-tempo de processamento. O PPM-C acrescenta a esse modelo um mecanismo de
+como o PPM~\cite{cleary1984} (\emph{Prediction by Partial Matching}), estimam a
+probabilidade do pr\'oximo s\'imbolo a partir dos $k$ s\'imbolos anteriores; quanto
+maior a ordem $k$, mais espec\'ifica \'e a previs\~ao, mas maior \'e o custo de
+armazenamento e o tempo de processamento. O PPM-C~\cite{moffat1990} acrescenta a
+esse modelo um mecanismo de
 \emph{exclus\~ao}, que evita que um s\'imbolo j\'a considerado em uma ordem superior
 seja novamente codificado nas ordens inferiores.
 
@@ -101,7 +103,7 @@ para acelerar a recupera\c{c}\~ao: o rein\'icio total do modelo (\emph{reset}) e
 poda de contextos pouco usados.
 
 \subsection{Fundamenta\c{c}\~ao te\'orica}
-O modelo PPM mant\'em, para cada ordem $k \in \{0,\ldots,K_{\max}\}$, uma tabela que
+O modelo PPM~\cite{bell1990} mant\'em, para cada ordem $k \in \{0,\ldots,K_{\max}\}$, uma tabela que
 associa o contexto formado pelos $k$ s\'imbolos mais recentes \`as frequ\^encias dos
 s\'imbolos que o sucederam. Para codificar um s\'imbolo, o algoritmo tenta a ordem
 mais alta dispon\'ivel. Se o s\'imbolo aparece no contexto, ele \'e codificado com a
@@ -109,7 +111,7 @@ distribui\c{c}\~ao desse contexto; caso contr\'ario, emite-se um \emph{escape} e
 repete-se o processo na ordem imediatamente inferior. Se todas as ordens falharem,
 o s\'imbolo \'e codificado pela ordem $-1$, uniforme sobre o alfabeto.
 
-Neste trabalho usa-se o m\'etodo C de Moffat para a probabilidade de escape. Em um
+Neste trabalho usa-se o m\'etodo C de Moffat~\cite{moffat1990} para a probabilidade de escape. Em um
 contexto com $n$ ocorr\^encias e $d$ s\'imbolos distintos, a frequ\^encia de escape
 \'e $d$, de modo que
 \begin{equation}
@@ -121,7 +123,7 @@ uniforme de ordem $-1$. As frequ\^encias s\~ao renormalizadas sobre o que resta;
 todos os s\'imbolos do contexto estiverem exclu\'idos, nenhum c\'odigo \'e emitido e
 o escape tem probabilidade unit\'aria.
 
-A codifica\c{c}\~ao aritm\'etica transforma a sequ\^encia de probabilidades em um
+A codifica\c{c}\~ao aritm\'etica~\cite{witten1987} transforma a sequ\^encia de probabilidades em um
 \'unico intervalo $[\text{low},\text{high})$ e emite os bits à medida que o
 intervalo se estreita. O codificador usa registradores de 32 bits e trata o
 \emph{underflow} pelo mecanismo cl\'assico de bits pendentes. Ap\'os cada s\'imbolo,
@@ -200,7 +202,8 @@ casos a decis\~ao \'e tomada apenas com informa\c{c}\~ao dispon\'ivel nos dois l
 o que mant\'em a sincronia.
 
 \subsection{Metodologia experimental}
-Os experimentos usam o corpus Silesia, com 211.938.580 bytes nos doze arquivos.
+Os experimentos usam o corpus Silesia~\cite{silesia}, com 211.938.580 bytes nos
+doze arquivos.
 Para a grade da se\c{c}\~ao 3.1 montou-se um fluxo de calibra\c{c}\~ao com 1 MB de
 cada arquivo (12 MB, contendo as onze transi\c{c}\~oes). A grade cobre A1 com
 $K_{\max}$ de 0 a 32 e A4/A8 com $K_{\max}$ de 0 a 8, $j \in
@@ -218,7 +221,9 @@ compress\~ao usa uma thread; como a grade executa v\'arias em paralelo, os tempo
 grade incluem conten\c{c}\~ao e servem para comparar ordens, n\~ao como tempos
 absolutos. As configura\c{c}\~oes escolhidas para cada alfabeto e modo s\~ao depois
 validadas no corpus completo, e os resultados s\~ao comparados com o 7-Zip (PPMd
-com ordens 6 e 16 e LZMA2).
+com ordens 6 e 16 e LZMA2). A grade usa um limite de 8 milh\~oes de contextos; a
+valida\c{c}\~ao final usa 20 milh\~oes, para n\~ao truncar as ordens mais altas no
+corpus completo.
 
 Os experimentos foram executados em uma m\'aquina Linux com 16 n\'ucleos e 31 GB de
 mem\'oria. O tempo reportado em cada linha \'e o tempo de parede daquela execu\c{c}\~ao
@@ -254,10 +259,10 @@ individual, incluindo a conten\c{c}\~ao com as demais.
   \label{fig:kmax}
 \end{figure}
 
-Nas Tabelas~\ref{tab:kmax-A1}--\ref{tab:kmax-A8} o comprimento \'e apresentado em
-bits/byte; a convers\~ao para bits/s\'imbolo \'e imediata (A1: $\times 8$, A4:
-$\times 2$, A8: $\times 1$), e a Tabela~\ref{tab:resumo-31} j\'a traz as duas
-m\'etricas. A grade completa (4.947 linhas) est\'a em
+As Tabelas~\ref{tab:kmax-A1}--\ref{tab:kmax-A8} trazem as duas m\'etricas,
+bits/byte e bits/s\'imbolo, para cada $K_{\max}$ e modo; a
+Tabela~\ref{tab:resumo-31} tamb\'em apresenta ambas. A grade completa (4.947
+linhas) est\'a em
 \texttt{results/31\_A*.csv}; as Tabelas~\ref{tab:kmax-A1}--\ref{tab:kmax-A8}
 resumem, para cada $K_{\max}$, o melhor $(j,p)$ de cada modo.
 
@@ -281,12 +286,29 @@ bits/byte). A diferen\c{c}a entre alfabetos \'e coerente com o n\'umero de
 s\'imbolos: o A8 precisa de menos ordens para cobrir os padr\~oes de byte, enquanto o
 A1, com apenas dois s\'imbolos, suporta ordens muito maiores antes de saturar.
 
-A Tabela~\ref{tab:resumo-31} resume as melhores configura\c{c}\~oes da calibra\c{c}\~ao.
-No corpus completo, com uma configura\c{c}\~ao comum por alfabeto (A1 em
-$K_{\max}=17$, A4 em $K_{\max}=8$ e A8 em $K_{\max}=5$), o reset foi o melhor modo
-nos tr\^es casos: 3,3546 bits/byte no A1, 2,3628 no A4 e 2,1623 no A8, contra
-3,9260, 2,6522 e 2,4538 sem adapta\c{c}\~ao. Isso corresponde a ganhos de 14,6\%,
-10,9\% e 11,9\%. A poda tamb\'em melhora os tr\^es alfabetos, mas fica atr\'as do
+O efeito de $j$ \'e mais forte que o de $p$. Janelas de 1.000 s\'imbolos s\~ao
+claramente ruins: no A1 com reset, o melhor resultado com $j=1.000$ \'e 5,353
+bits/byte, contra 3,899 no \'otimo ($j=50.000$); no A1 com poda, 6,044 contra
+4,093. A partir de 10.000 s\'imbolos o custo j\'a fica pr\'oximo do m\'inimo; no A4
+e no A8, 5.000 j\'a \'e suficiente. Janelas de 50.000--100.000 n\~ao trazem ganho
+adicional e podem atrasar a rea\c{c}\~ao.
+Para $p$, a curva \'e mais plana: no A1 com reset, $p=5$ d\'a 4,186 e $p=30$ d\'a
+3,899, enquanto $p=40$--$50$ volta a 3,932--3,921. No A4 e no A8, os melhores
+resultados usam $p=40$--$50$ e $j=5.000$--$10.000$, coerente com as transi\c{c}\~oes
+abruptas do fluxo de calibra\c{c}\~ao. No A4 com reset, $j=1.000$ d\'a 3,322 contra
+3,018 no \'otimo; no A8, 2,957 contra 2,854. A poda \'e mais sens\'ivel a $j$ que o reset
+(A1: 6,044 em $j=1.000$ contra 4,093 no \'otimo), porque cada disparo varre as
+tabelas; por isso seu melhor $j$ no A1 \'e 50.000, com $p=15$.
+
+A Tabela~\ref{tab:resumo-31} resume as melhores configura\c{c}\~oes da
+calibra\c{c}\~ao e compara cada modo com o melhor \emph{none} de cada alfabeto (A1
+em $K_{\max}=30$, A4 em 7 e A8 em 5). No corpus completo, para comparar os modos
+sem confundir o efeito da ordem, usa-se a mesma configura\c{c}\~ao
+($K_{\max},j,p$) nos tr\^es modos de cada alfabeto (A1 em $K_{\max}=17$, A4 em 8 e
+A8 em 5). Nessa compara\c{c}\~ao controlada, o reset foi o melhor modo nos tr\^es
+casos: 3,3546 bits/byte no A1, 2,3628 no A4 e 2,1623 no A8, contra 3,9260, 2,6522
+e 2,4538 sem adapta\c{c}\~ao. Isso corresponde a ganhos de 14,6\%, 10,9\% e 11,9\%
+na mesma configura\c{c}\~ao. A poda tamb\'em melhora os tr\^es alfabetos, mas fica atr\'as do
 reset (3,4382, 2,5250 e 2,2403 bits/byte). A Tabela~\ref{tab:final} traz os tempos
 de compress\~ao e descompress\~ao medidos nessa valida\c{c}\~ao. A grade registra o
 tempo de compress\~ao de cada combina\c{c}\~ao; a Tabela~\ref{tab:dec-times} repete
@@ -305,12 +327,16 @@ muito mais barato que o modo sem adapta\c{c}\~ao em $K_{\max}=30$.
 Cabe registrar uma escolha metodol\'ogica: para comparar os modos sem confundir o
 efeito da ordem, a valida\c{c}\~ao final usa a mesma configura\c{c}\~ao
 ($K_{\max}$, $j$ e $p$) nos tr\^es modos de cada alfabeto. No A1, o melhor ponto
-isolado do modo sem adapta\c{c}\~ao na grade
-\'e $K_{\max}=30$, mas o \'optimo global (reset) est\'a em 17; usar 17 em todos os
-modos mant\'em a compara\c{c}\~ao controlada e n\~ao altera a conclus\~ao de que o
-reset \'e superior. A poda, por varrer todas as tabelas a cada disparo, foi o modo
-mais lento no corpus completo, sobretudo no A4 (1.243 s de compress\~ao contra
-458 s do reset).
+isolado do modo sem adapta\c{c}\~ao na grade \'e $K_{\max}=30$ (4,270 bits/byte),
+mas o \'optimo global (reset) est\'a em 17. Usar 17 em todos os modos mant\'em a
+compara\c{c}\~ao controlada; por isso o ganho de 14,6\% \'e relativo ao \emph{none}
+em $K_{\max}=17$, e n\~ao ao melhor \emph{none}. Na calibra\c{c}\~ao, o \emph{none}
+em $K_{\max}=30$ \'e 8,8\% melhor que em 17, de modo que o ganho contra o melhor
+\emph{none} do A1 \'e menor que 14,6\%. A conclus\~ao qualitativa de que o reset \'e superior se
+mant\'em, mas o n\'umero deve ser lido como uma compara\c{c}\~ao na mesma
+configura\c{c}\~ao. A poda, por varrer todas as tabelas a cada disparo, foi mais
+lenta que o reset nos tr\^es alfabetos, com o pior caso no A4 (1.243 s de
+compress\~ao contra 458 s do reset).
 
 Para completar a lacuna de tempos por $K_{\max}$, as
 Tabelas~\ref{tab:times-A1}--\ref{tab:times-A8} repetem, para cada $K_{\max}$ e
@@ -347,8 +373,9 @@ s\~ao ru\'ido de medi\c{c}\~ao entre execu\c{c}\~oes independentes.
 
 As tr\^es curvas come\c{c}am com comprimento m\'edio alto e caem rapidamente nos
 primeiros megabytes de dados, \`a medida que o modelo aprende os padr\~oes
-locais. Adotando uma toler\^ancia de 5\% em torno do valor final, as curvas entram
-na faixa com cerca de 0,35 MB (A1), 2,77 MB (A4) e 2,99 MB (A8), ou seja, 3,4\%,
+locais. Adotando uma toler\^ancia de 5\% em torno do valor final, as curvas
+permanecem dentro da faixa a partir de cerca de 0,35 MB (A1), 2,77 MB (A4) e
+2,99 MB (A8), ou seja, 3,4\%,
 27,2\% e 29,3\% do arquivo. Com toler\^ancia de 1\%, a estabiliza\c{c}\~ao ocorre
 por volta de 2,46 MB no A1, 7,11 MB no A4 e 7,51 MB no A8. O A1 converge muito mais
 r\'apido; A4 e A8 precisam de v\'arios megabytes porque o alfabeto maior tem mais
@@ -454,8 +481,9 @@ com o original. Todas as linhas de \texttt{final\_A*.csv} terminam em
 \texttt{verify=ok}, e as nove execu\c{c}\~oes da Tabela~\ref{tab:dec-times} tamb\'em
 foram verificadas com sucesso. Al\'em disso, o autoteste (\texttt{ppm selftest}) cobre os tr\^es
 alfabetos, ordens selecionadas at\'e a m\'axima (0, 1, 2, 4 e o valor m\'aximo),
-arquivos vazios, dados aleat\'orios e os tr\^es modos. Como demonstra\c{c}\~ao expl\^icita, o procedimento abaixo foi repetido
-para A1, A4 e A8 no arquivo \texttt{dickens}:
+arquivos vazios, dados aleat\'orios e os tr\^es modos. Como demonstra\c{c}\~ao
+expl\'icita, o bloco abaixo mostra o caso A8 com poda; o mesmo procedimento foi
+repetido para A1 (sem adapta\c{c}\~ao) e A4 (reset) no arquivo \texttt{dickens}:
 
 \begin{lstlisting}
 $ ./build/ppm c data/silesia/dickens /tmp/dickens_A8.ppm \
@@ -472,7 +500,7 @@ autoteste completo.
 \subsection{Compara\c{c}\~ao com softwares comerciais}
 \maybeinput{tables/commercial.tex}
 
-O 7-Zip foi usado como refer\^encia, com PPMd nas ordens 6 e 16 (256 MB de
+O 7-Zip~\cite{sevenzip} foi usado como refer\^encia, com PPMd nas ordens 6 e 16 (256 MB de
 mem\'oria) e LZMA2, todos em uma thread. No corpus completo, o melhor resultado
 comercial foi o PPMd de ordem 16, com 1,8132 bits/byte, seguido por LZMA2 (1,8377)
 e pelo PPMd de ordem 6 (1,8831). O melhor resultado deste trabalho foi 2,1623
@@ -485,10 +513,10 @@ e uma implementa\c{c}\~ao muito otimizada, enquanto este trabalho usa ordens men
 No arquivo \texttt{dickens}, o PPMd de ordem 16 atinge 1,7893 bits/byte e o LZMA2
 2,2221; o A8 sem adapta\c{c}\~ao deste trabalho fica em 1,9075 bits/byte, coerente
 com o valor final da curva 3.2. Ou seja, em um arquivo pequeno e
-homog\^eneo a diferen\c{c}a \'e bem menor do que no corpus completo. Os tempos n\~ao
-s\~ao diretamente compar\'aveis, pois os compressores t\^em implementa\c{c}\~oes,
-threads e estruturas de dados diferentes; a compara\c{c}\~ao aqui \'e de
-comprimento m\'edio, como pede o enunciado.
+homog\^eneo a diferen\c{c}a \'e bem menor do que no corpus completo. Os tempos do
+7-Zip n\~ao foram medidos; al\'em disso, eles n\~ao seriam diretamente compar\'aveis,
+pois os compressores t\^em implementa\c{c}\~oes, threads e estruturas de dados
+diferentes. A compara\c{c}\~ao aqui \'e de comprimento m\'edio.
 
 %======================================================================
 \section{Discuss\~ao}
@@ -552,8 +580,11 @@ Na calibra\c{c}\~ao, o melhor resultado do A1 foi obtido com reset em
 $K_{\max}=17$ (3,899 bits/byte), enquanto o A4 e o A8 preferiram $K_{\max}=8$ e
 $K_{\max}=5$. No corpus completo, o reset foi o melhor modo nos tr\^es alfabetos:
 3,3546 bits/byte no A1, 2,3628 no A4 e 2,1623 no A8, com ganhos de 14,6\%, 10,9\% e
-11,9\% sobre o modo sem adapta\c{c}\~ao. A poda tamb\'em trouxe ganhos, mas foi mais
-lenta e ligeiramente pior em compress\~ao.
+11,9\% sobre o modo sem adapta\c{c}\~ao na mesma configura\c{c}\~ao de cada alfabeto.
+No A1, esse ganho \'e uma compara\c{c}\~ao controlada em $K_{\max}=17$, n\~ao contra o
+melhor \emph{none} da calibra\c{c}\~ao ($K_{\max}=30$); o ganho contra esse
+melhor \emph{none} \'e menor. A poda tamb\'em trouxe ganhos, mas foi mais
+lenta e ficou atr\'as do reset em compress\~ao.
 
 As curvas de aprendizagem mostram que o modelo se aproxima do regime est\'avel em
 0,35 MB no A1 e em cerca de 2,8--3,0 MB no A4/A8 (toler\^ancia de 5\%) e que as

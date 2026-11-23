@@ -35,6 +35,8 @@ if [ ! -f "$DATA/calib.bin" ]; then
 fi
 mkdir -p "$OUT"
 
+# Run the 3.1 grid for one alphabet: $1=bits, $2=Kmax list/range, $3=output CSV.
+# Skipped when the output already exists, unless FORCE=1 or RESUME=1.
 run() {
   local bits="$1" kmax="$2" out="$3"
   if [ -s "$out" ] && [ "${FORCE:-0}" != "1" ] && [ "${RESUME:-0}" != "1" ]; then

@@ -11,6 +11,8 @@ RES = os.path.join(ROOT, "results")
 
 
 def load(bits):
+    """Read and cast the 3.1 grid rows for alphabet `bits`; returns an empty
+    list when the CSV is missing."""
     path = os.path.join(RES, f"31_A{bits}.csv")
     if not os.path.exists(path):
         return []
@@ -32,6 +34,8 @@ def load(bits):
 
 
 def best(rows, mode, kmax=None):
+    """Return the row with the smallest bits/byte for `mode`, optionally
+    restricted to one `kmax`; returns None when no row matches."""
     sel = [r for r in rows if r["mode"] == mode and (kmax is None or r["kmax"] == kmax)]
     if not sel:
         return None
@@ -39,6 +43,8 @@ def best(rows, mode, kmax=None):
 
 
 def main():
+    """Print the Markdown tables for section 3.1 (per alphabet, Kmax effects,
+    best reset parameters and the commercial reference) to stdout."""
     print("# Resultados da secao 3.1\n")
     print("Fluxo de calibracao: 1 MB de cada um dos 12 arquivos Silesia "
           "(12 MB, 11 transicoes). `bits/byte` inclui apenas o payload "

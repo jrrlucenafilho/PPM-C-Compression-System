@@ -24,6 +24,8 @@ COLORS = {"none": "#444444", "reset": "#d62728", "prune": "#1f77b4"}
 
 
 def load(path):
+    """Load a 3.1 results CSV and cast its numeric columns; returns a list of
+    row dicts (one per completed bench job)."""
     rows = []
     with open(path, newline="") as f:
         for r in csv.DictReader(f):
@@ -48,6 +50,8 @@ def best_by_kmax(rows, mode):
 
 
 def plot_kmax(rows, bits):
+    """Save figs/bpb_vs_kmax_A{bits}.png: best bits/byte per Kmax and mode,
+    using the best (j,p) of each mode."""
     plt.figure(figsize=(7, 4))
     for mode in MODES:
         pts = best_by_kmax(rows, mode)
@@ -68,6 +72,8 @@ def plot_kmax(rows, bits):
 
 
 def best_kmax(rows, mode):
+    """Return the Kmax with the lowest bits/byte for `mode`, or None when the
+    mode has no rows."""
     pts = best_by_kmax(rows, mode)
     if not pts:
         return None
@@ -75,6 +81,9 @@ def best_kmax(rows, mode):
 
 
 def plot_param(rows, bits, mode, param):
+    """Save figs/bpb_vs_{param}_A{bits}_{mode}.png: bits/byte against `param`
+    (`j` or `p`) at the mode's best Kmax, one line per value of the other knob.
+    Does nothing when the mode has no rows."""
     k = best_kmax(rows, mode)
     if k is None:
         return
@@ -101,6 +110,9 @@ def plot_param(rows, bits, mode, param):
 
 
 def plot_trace(path, bits, label, boundaries_bytes=None):
+    """Save a progressive-rate figure from the trace CSV at `path`: bits
+    emitted per symbol versus position. `boundaries_bytes` (optional) lists
+    corpus-file offsets, drawn as labelled vertical lines."""
     ns, avgs = [], []
     with open(path, newline="") as f:
         for r in csv.DictReader(f):
@@ -147,6 +159,8 @@ def silesia_boundaries():
 
 
 def main():
+    """Generate every figure whose input data exists and write
+    results/summary_31.csv with the best configuration per alphabet/mode."""
     boundaries = silesia_boundaries()
     summary = []
     for bits in (1, 4, 8):

@@ -1,4 +1,4 @@
-main.pdf: main.tex
+main.pdf: main.tex $(wildcard tables/*.tex)
 	pdflatex -interaction=nonstopmode main.tex
 	pdflatex -interaction=nonstopmode main.tex
 
