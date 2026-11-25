@@ -649,4 +649,4 @@ private:
   uint64_t prunes_ = 0;
 };
 
-} // namespace ppm
+}

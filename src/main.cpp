@@ -821,9 +821,9 @@ int cmdSelftest() {
   return failures == 0 ? 0 : 1;
 }
 
-} // namespace
+}
 
-// Entry point: dispatches argv[1] to compress, decompress, bench or selftest.
+// Dispatches argv[1] to compress, decompress, bench or selftest.
 // Prints usage and returns 1 when no or an unknown command is given.
 int main(int argc, char **argv) {
   if (argc < 2) {
